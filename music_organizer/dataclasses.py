@@ -2,6 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class VkSong:
+class VKSong:
     id: int
     owner_id: int
