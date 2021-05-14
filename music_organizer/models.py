@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
-engine = sqla.create_engine("sqlite:///:memory:", echo=True)
 Base = declarative_base()
 
 
@@ -21,6 +20,7 @@ class Song:
     ydl_paths = sqla.Column(sqla.PickleType)
 
 
+engine = sqla.create_engine("sqlite:///:memory:", echo=True)
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session = Session()
