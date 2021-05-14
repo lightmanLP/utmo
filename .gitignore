@@ -115,3 +115,7 @@ dmypy.json
 
 # Code
 .vscode
+
+# Custom
+test.py
+vk_config.v2.json

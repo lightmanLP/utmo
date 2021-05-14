@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class Song:
+class Song(Base):
     __tablename__ = "songs"
 
     id = sqla.Column(sqla.Integer, primary_key=True, autoincrement=True)
@@ -17,7 +17,7 @@ class Song:
     provided_from = sqla.Column(sqla.Integer)
     tags = sqla.Column(sqla.PickleType)
     import_date = sqla.Column(sqla.DateTime)
-    ydl_paths = sqla.Column(sqla.PickleType)
+    extra_location_data = sqla.Column(sqla.PickleType)
 
 
 engine = sqla.create_engine("sqlite:///:memory:", echo=True)
