@@ -6,6 +6,5 @@ class Providers(IntEnum):
     YOUTUBE = 1
     BANDCAMP = 2
     VK = 3
-    SPOTIFY = 4
-    SOUNDCLOUD = 5
-    CUSTOM = 6
+    SOUNDCLOUD = 4
+    CUSTOM = 5

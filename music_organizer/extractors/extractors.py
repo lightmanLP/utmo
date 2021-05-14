@@ -29,10 +29,6 @@ class VKExtractor(AbstractExtractor):
         return audio.get("url")
 
 
-class SpotifyExtractor(AbstractExtractor):
-    ...
-
-
 class CustomExtractor(AbstractExtractor):
     ...
 
