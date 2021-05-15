@@ -17,7 +17,7 @@ class Song(Base):
     provided_from = sqla.Column(sqla.Integer)
     tags = sqla.Column(sqla.PickleType)
     import_date = sqla.Column(sqla.DateTime)
-    extra_location_data = sqla.Column(sqla.PickleType)
+    extra_location_data = sqla.Column(sqla.PickleType, default=None)
 
 
 engine = sqla.create_engine("sqlite:///:memory:", echo=True)
