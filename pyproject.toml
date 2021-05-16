@@ -2,7 +2,7 @@
 name = "utmo"
 version = "0.0.1"
 description = ""
-authors = ["lightmanLP <liteman1000@gmail.com>", "mikk357 <mikk357@yandex.ru>"]
+authors = ["lightmanLP <liteman1000@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
