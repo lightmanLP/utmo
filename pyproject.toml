@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "utmo"
+version = "0.0.1"
+description = ""
+authors = ["lightmanLP <liteman1000@gmail.com>", "mikk357 <mikk357@yandex.ru>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+vk-api = "^11.9.3"
+bs4 = "^0.0.1"
+youtube_dl = "^2021.5.16"
+click = "^8.0.0"
+SQLAlchemy = "^1.4.15"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

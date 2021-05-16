@@ -116,6 +116,9 @@ dmypy.json
 # Code
 .vscode
 
+# Poetry
+poetry.lock
+
 # Custom
 test.py
 vk_config.v2.json
