@@ -72,7 +72,8 @@ class Scrapper(AbstractScrapper):
             ]
         else:
             peers = self.vk_playlist_pattern.search(url)
-            return self.vk.get(*peers.groups()[1:])  # FIXME: ну не работает оно блять
+            self.vk.get(*peers.groups()[1:])  # FIXME: ну не работает оно блять
+            return None
 
     def _from_custom(self, url: str) -> List[models.Song]:
         ...  # TODO
