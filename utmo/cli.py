@@ -1,8 +1,7 @@
 import click
-import vk_api
 
 from . import models, enums
-from .scrapper import Scrapper
+from .tools import Scrapper
 
 
 # core group

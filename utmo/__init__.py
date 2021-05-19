@@ -1,2 +1,1 @@
-from .extractor import Extractor
-from .scrapper import Scrapper
+from .tools import Extractor, Scrapper

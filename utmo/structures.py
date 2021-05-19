@@ -1,4 +1,16 @@
+from dataclasses import dataclass
 from enum import IntEnum
+
+
+YDL_PARAMS = {
+    "format": "bestaudio/best"
+}
+
+
+@dataclass
+class VKSong:
+    id: int
+    owner_id: int
 
 
 class Providers(IntEnum):
