@@ -4,7 +4,10 @@ from abc import ABC, abstractmethod
 
 class AbstractSystemAdapter(ABC):
     """  """
-    ...
+
+    @abstractmethod
+    def open_url(url: str):
+        ...
 
 
 class AbstractControlAdapter(ABC):

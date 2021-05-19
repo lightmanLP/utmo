@@ -36,6 +36,7 @@ class VKManager:
         self._vk = VkAudio(api)
 
     def _captcha_handler(self, captcha: vk_api.Captcha) -> Any:
+        adapters.system.open_url(captcha.get_url())
         code = adapters.control.get_input("Enter captcha")
         return captcha.try_again(code)
 
