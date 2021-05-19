@@ -70,10 +70,10 @@ class ControlAdapter(AbstractControlAdapter):
     def get_input(
         self,
         text: str,
-        input_type: Callable,
+        input_type: Callable = str,
         secure: bool = False
     ) -> Any:
-        return input_type(input())  # FIXME
+        return input_type(input(text))  # FIXME
 
 
 system = SystemAdapter()

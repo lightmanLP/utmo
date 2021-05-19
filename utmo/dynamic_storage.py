@@ -13,12 +13,12 @@ class VKManager:
 
     @property
     def vk(self) -> VkAudio:
-        if self._vk is not None:
+        if self._vk is None:
             self._init_vk()
         return self._vk
 
     def _init_vk(self):
-        if self.vk_login is not None:
+        if self.vk_login is None:
             self.vk_login = adapters.control.get_input(
                 "Enter your VK login"
             )
@@ -32,6 +32,7 @@ class VKManager:
             captcha_handler=self._captcha_handler,
             auth_handler=self._auth_handler
         )
+        print(self.vk_login, password)
         api.auth()
         self._vk = VkAudio(api)
 

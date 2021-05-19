@@ -1,7 +1,7 @@
 import click
 
-from . import models, enums
-from .tools import Scrapper
+from . import models, structures
+from .tools import Scrapper, Extractor
 
 
 # core group
@@ -18,12 +18,10 @@ def list_songs():
 
 
 @click.command("add", help="add song from url to db")
-@click.option("--provider", default=None, type=enums.Providers)
+@click.option("--provider", default=None, type=structures.Providers)
 @click.argument("url", type=str)
-def add_song(provider: enums.Providers, url: str):
-    # TODO
-    scrapper = Scrapper()
-    song = scrapper.scrap(url, provider)
+def add_song(provider: structures.Providers, url: str):
+    song = Scrapper.scrap(url, provider)
 
     models.session.add(song)
     models.session.commit()

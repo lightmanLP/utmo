@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import re
 
+from urllib3.util import parse_url
 import youtube_dl
-from vk_api.audio import VkAudio
 
 from . import models, structures
 from .dynamic_storage import vk_manager
@@ -19,6 +19,11 @@ class AbstractScrapper(ABC):
     @classmethod
     @abstractmethod
     def scrap(cls, url: str, provider: structures.Providers) -> List[models.Song]:
+        """  """
+        ...
+
+    @abstractmethod
+    def detect_provider(url: str) -> structures.Providers:
         """  """
         ...
 
@@ -41,6 +46,9 @@ class Scrapper(AbstractScrapper):
 
     @classmethod
     def scrap(cls, url: str, provider: structures.Providers) -> List[models.Song]:
+        if provider is None:
+            provider = cls.detect_provider(url)
+
         if provider == structures.Providers.VK:
             return cls._from_vk(url)
         elif provider == structures.Providers.CUSTOM:
@@ -64,6 +72,16 @@ class Scrapper(AbstractScrapper):
                 )
                 for i in tracks
             ]
+
+    def detect_provider(url: str) -> structures.Providers:
+        url_ = parse_url(url)
+        if url_.hostname.endswith("vk.com"):
+            return structures.Providers.VK
+        elif url_.hostname.endswith("youtube.com"):
+            return structures.Providers.YOUTUBE
+        elif url_.hostname.endswith("soundcloud.com"):
+            return structures.Providers.SOUNDCLOUD
+        ...  # TODO
 
     @classmethod
     def _from_vk(cls, url: str) -> List[models.Song]:
