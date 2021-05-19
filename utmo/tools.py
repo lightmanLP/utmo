@@ -16,8 +16,9 @@ class AbstractScrapper(ABC):
     vk_audio_pattern: re.Pattern
     vk_playlist_pattern: re.Pattern
 
+    @classmethod
     @abstractmethod
-    def scrap(self, url: str, provider: structures.Providers) -> List[models.Song]:
+    def scrap(cls, url: str, provider: structures.Providers) -> List[models.Song]:
         """  """
         ...
 
@@ -25,21 +26,25 @@ class AbstractScrapper(ABC):
 class AbstractExtractor(ABC):
     """ Extract audio stream """
 
+    @classmethod
     @abstractmethod
-    def extract(self, song: models.Song) -> Optional[str]:
+    def extract(cls, song: models.Song) -> Optional[str]:
         """  """
         ...
 
 
 class Scrapper(AbstractScrapper):
-    vk_audio_pattern = re.compile(r"audio(\d+)_(\d+)")
-    vk_playlist_pattern = re.compile(r"audio_playlist(\d+)_(\d+)/(\w+)")
+    """ Scrap track data """
 
-    def scrap(self, url: str, provider: structures.Providers) -> List[models.Song]:
+    vk_audio_pattern = re.compile(r"audio(\d+)_(\d+)")
+    vk_playlist_pattern = re.compile(r"audio_playlist(\d+)_(\d+)(?:/(\w+))?")
+
+    @classmethod
+    def scrap(cls, url: str, provider: structures.Providers) -> List[models.Song]:
         if provider == structures.Providers.VK:
-            return self._from_vk(url)
+            return cls._from_vk(url)
         elif provider == structures.Providers.CUSTOM:
-            return self._from_custom(url)
+            return cls._from_custom(url)
         else:
             with youtube_dl.YoutubeDL(structures.YDL_PARAMS) as ydl:
                 data = ydl.extract_info(url, download=False)
@@ -60,8 +65,9 @@ class Scrapper(AbstractScrapper):
                 for i in tracks
             ]
 
-    def _from_vk(self, url: str) -> List[models.Song]:
-        peers = self.vk_audio_pattern.search(url)
+    @classmethod
+    def _from_vk(cls, url: str) -> List[models.Song]:
+        peers = cls.vk_audio_pattern.search(url)
         if peers:
             data = vk_manager.vk.get_audio_by_id(*peers.groups()[1:])
             return [
@@ -80,38 +86,37 @@ class Scrapper(AbstractScrapper):
                 )
             ]
         else:
-            peers = self.vk_playlist_pattern.search(url)
+            peers = cls.vk_playlist_pattern.search(url)
             vk_manager.vk.get(*peers.groups()[1:])  # FIXME: ну не работает оно блять
             return None
 
-    def _from_custom(self, url: str) -> List[models.Song]:
+    def _from_custom(url: str) -> List[models.Song]:
         ...  # TODO
 
 
 class Extractor(AbstractExtractor):
-    @property
-    def vk(self) -> VkAudio:
-        ...  # TODO
+    """ Extract audio stream """
 
-    def extract(self, song: models.Song) -> Optional[str]:
+    @classmethod
+    def extract(cls, song: models.Song) -> Optional[str]:
         if song.provided_from == structures.Providers.VK:
-            return self._from_vk(song.extra_location_data)
+            return cls._from_vk(song.extra_location_data)
         elif song.provided_from == structures.Providers.CUSTOM:
-            return self._from_custom(song)  # FIXME
+            return cls._from_custom(song)  # FIXME
         else:
-            return self._from_yt(song.url)
+            return cls._from_yt(song.url)
 
-    def _from_yt(self, url: str) -> Optional[str]:
+    def _from_yt(url: str) -> Optional[str]:
         with youtube_dl.YoutubeDL(structures.YDL_PARAMS) as ydl:
             info = ydl.extract_info(url, download=False)
         return info.get("url")
 
-    def _from_vk(self, loc_data: structures.VKSong) -> Optional[str]:
-        audio = self.vk.get_audio_by_id(
+    def _from_vk(loc_data: structures.VKSong) -> Optional[str]:
+        audio = vk_manager.vk.get_audio_by_id(
             loc_data.owner_id,
             loc_data.id
         )
         return audio.get("url")
 
-    def _from_custom(self, song: models.Song) -> Optional[str]:
+    def _from_custom(song: models.Song) -> Optional[str]:
         ...  # TODO
