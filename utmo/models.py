@@ -1,3 +1,5 @@
+from typing import List
+
 import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -22,11 +24,11 @@ class Song(Base):
     extra_location_data = sqla.Column(sqla.PickleType, default=None)
 
     @classmethod
-    def export(cls) -> dict:
+    def export_songs(cls) -> List[dict]:
         ...  # TODO
 
     @classmethod
-    def import(cls, data: dict):
+    def import_songs(cls, data: List[dict]):
         ...  # TODO
 
 

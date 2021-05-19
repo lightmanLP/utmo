@@ -52,9 +52,12 @@ class SystemAdapter(AbstractSystemAdapter):
         else:
             raise Exception("Unsupported platform")
 
+        self.vars_path.mkdir(parents=True, exist_ok=True)
+
     @property
     def db_uri(self) -> str:
-        return f"sqlite:///{self.vars_path}/songs.db"
+        prefix = "/" if self.platform == structures.Platform.LINUX else ""
+        return f"sqlite:///{prefix}{self.vars_path.joinpath('songs.db')}"
 
     def open_url(self, url: str):
         if self.platform == structures.Platform.TERMUX:
