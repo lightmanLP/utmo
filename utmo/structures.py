@@ -20,3 +20,9 @@ class Providers(IntEnum):
     VK = 3
     SOUNDCLOUD = 4
     CUSTOM = 5
+
+
+class Platform(IntEnum):
+    WINDOWS = 0
+    LINUX = 1
+    TERMUX = 2

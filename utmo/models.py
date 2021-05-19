@@ -2,6 +2,8 @@ import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+from . import adapters
+
 
 Base = declarative_base()
 
@@ -19,8 +21,16 @@ class Song(Base):
     import_date = sqla.Column(sqla.DateTime)
     extra_location_data = sqla.Column(sqla.PickleType, default=None)
 
+    @classmethod
+    def export(cls) -> dict:
+        ...  # TODO
 
-engine = sqla.create_engine("sqlite:///:memory:", echo=True)
+    @classmethod
+    def import(cls, data: dict):
+        ...  # TODO
+
+
+engine = sqla.create_engine(adapters.system.db_uri, echo=True)
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session = Session()
