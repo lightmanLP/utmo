@@ -7,14 +7,13 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-vk-api = "^11.9.3"
+vk-api = "^11.9.4"
 bs4 = "^0.0.1"
 youtube_dl = "^2021.5.16"
 click = "^8.0.0"
 SQLAlchemy = "^1.4.15"
 bcrypt = "^3.2.0"
 keyring = "^23.0.1"
-urllib3 = "^1.26.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"

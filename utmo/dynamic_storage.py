@@ -3,6 +3,7 @@ from typing import Optional, Any
 import keyring
 import vk_api
 from vk_api.audio import VkAudio
+from jconfig.memory import MemoryConfig
 
 from . import adapters
 
@@ -30,9 +31,9 @@ class VKManager:
             self.vk_login,
             password,
             captcha_handler=self._captcha_handler,
-            auth_handler=self._auth_handler
+            auth_handler=self._auth_handler,
+            config=MemoryConfig
         )
-        print(self.vk_login, password)
         api.auth()
         self._vk = VkAudio(api)
 
@@ -42,10 +43,7 @@ class VKManager:
         return captcha.try_again(code)
 
     def _auth_handler(self):
-        return (
-            adapters.control.get_input("Enter VK code"),
-            adapters.control.get_input("Save auth", bool)
-        )
+        return adapters.control.get_input("Enter VK code"), False
 
 
 vk_manager = VKManager()

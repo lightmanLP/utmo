@@ -18,10 +18,10 @@ def list_songs():
 
 
 @click.command("add", help="add song from url to db")
-@click.option("--provider", default=None, type=structures.Providers)
+# @click.option("--provider", default=None, type=structures.Providers)
 @click.argument("url", type=str)
-def add_song(provider: structures.Providers, url: str):
-    song = Scrapper.scrap(url, provider)
+def add_song(url: str):
+    song = Scrapper.scrap(url)
 
     models.session.add(song)
     models.session.commit()

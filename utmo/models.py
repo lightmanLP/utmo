@@ -20,6 +20,7 @@ class Song(Base):
     description = sqla.Column(sqla.UnicodeText)
     provided_from = sqla.Column(sqla.Integer)
     tags = sqla.Column(sqla.PickleType)
+    plays_count = sqla.Column(sqla.Integer)
     import_date = sqla.Column(sqla.DateTime)
     extra_location_data = sqla.Column(sqla.PickleType, default=None)
 

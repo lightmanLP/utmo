@@ -1,10 +1,6 @@
+from typing import Tuple
 from dataclasses import dataclass
 from enum import IntEnum
-
-
-YDL_PARAMS = {
-    "format": "bestaudio/best"
-}
 
 
 @dataclass
@@ -26,3 +22,8 @@ class Platform(IntEnum):
     WINDOWS = 0
     LINUX = 1
     TERMUX = 2
+
+
+YDL_PARAMS = {
+    "format": "bestaudio/best"
+}

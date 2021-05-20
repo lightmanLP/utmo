@@ -13,17 +13,13 @@ from .dynamic_storage import vk_manager
 class AbstractScrapper(ABC):
     """ Scrap track data """
 
+    vk_pattern: re.Pattern
     vk_audio_pattern: re.Pattern
     vk_playlist_pattern: re.Pattern
 
     @classmethod
     @abstractmethod
-    def scrap(cls, url: str, provider: structures.Providers) -> List[models.Song]:
-        """  """
-        ...
-
-    @abstractmethod
-    def detect_provider(url: str) -> structures.Providers:
+    def scrap(cls, url: str) -> List[models.Song]:
         """  """
         ...
 
@@ -41,21 +37,25 @@ class AbstractExtractor(ABC):
 class Scrapper(AbstractScrapper):
     """ Scrap track data """
 
+    vk_pattern = re.compile(r"https://(?:www.)?vk.com/")
     vk_audio_pattern = re.compile(r"audio(\d+)_(\d+)")
-    vk_playlist_pattern = re.compile(r"audio_playlist(\d+)_(\d+)(?:/(\w+))?")
+    vk_playlist_pattern = re.compile(r"(?:audio_playlist|playlist/)(\d+)_(\d+)(?:/(\w+))?")
 
     @classmethod
-    def scrap(cls, url: str, provider: structures.Providers) -> List[models.Song]:
-        if provider is None:
-            provider = cls.detect_provider(url)
-
-        if provider == structures.Providers.VK:
+    def scrap(cls, url: str) -> List[models.Song]:
+        if cls.vk_pattern.search(url) is not None:
             return cls._from_vk(url)
-        elif provider == structures.Providers.CUSTOM:
-            return cls._from_custom(url)
         else:
             with youtube_dl.YoutubeDL(structures.YDL_PARAMS) as ydl:
                 data = ydl.extract_info(url, download=False)
+
+            for i in structures.Providers:
+                if i.name.lower() in data["extractor"]:
+                    provider = i
+                    break
+            if provider is None:
+                return cls._from_custom(data)
+
             if "entries" in data:
                 tracks = data["entries"]
             else:
@@ -73,42 +73,32 @@ class Scrapper(AbstractScrapper):
                 for i in tracks
             ]
 
-    def detect_provider(url: str) -> structures.Providers:
-        url_ = parse_url(url)
-        if url_.hostname.endswith("vk.com"):
-            return structures.Providers.VK
-        elif url_.hostname.endswith("youtube.com"):
-            return structures.Providers.YOUTUBE
-        elif url_.hostname.endswith("soundcloud.com"):
-            return structures.Providers.SOUNDCLOUD
-        ...  # TODO
-
     @classmethod
     def _from_vk(cls, url: str) -> List[models.Song]:
         peers = cls.vk_audio_pattern.search(url)
         if peers:
-            data = vk_manager.vk.get_audio_by_id(*peers.groups()[1:])
-            return [
-                models.Song(
-                    url="",
-                    title=data["title"],
-                    author=data["artist"],
-                    description=data.get("description", ""),
-                    provided_from=structures.Providers.VK,
-                    tags=set(),
-                    import_date=datetime.now(),
-                    extra_location_data=structures.VKSong(
-                        peers[2],
-                        peers[1]
-                    )
-                )
-            ]
+            data = [vk_manager.vk.get_audio_by_id(*peers.groups())]
         else:
             peers = cls.vk_playlist_pattern.search(url)
-            vk_manager.vk.get(*peers.groups()[1:])  # FIXME: ну не работает оно блять
-            return None
+            data = vk_manager.vk.get(*peers.groups())
+        return [
+            models.Song(
+                url="",
+                title=i["title"],
+                author=i["artist"],
+                description=i.get("description", ""),
+                provided_from=structures.Providers.VK,
+                tags=set(),
+                import_date=datetime.now(),
+                extra_location_data=structures.VKSong(
+                    i["id"],
+                    i["owner_id"]
+                )
+            )
+            for i in data
+        ]
 
-    def _from_custom(url: str) -> List[models.Song]:
+    def _from_custom(ydl_data: dict) -> List[models.Song]:
         ...  # TODO
 
 
