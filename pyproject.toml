@@ -12,7 +12,6 @@ bs4 = "^0.0.1"
 youtube_dl = "^2021.5.16"
 click = "^8.0.0"
 SQLAlchemy = "^1.4.15"
-bcrypt = "^3.2.0"
 keyring = "^23.0.1"
 
 [tool.poetry.dev-dependencies]
