@@ -44,34 +44,37 @@ class Scrapper(AbstractScrapper):
     @classmethod
     def scrap(cls, url: str) -> List[models.Song]:
         if cls.vk_pattern.search(url) is not None:
-            return cls._from_vk(url)
+            songs = cls._from_vk(url)
         else:
             with youtube_dl.YoutubeDL(structures.YDL_PARAMS) as ydl:
                 data = ydl.extract_info(url, download=False)
-
             for i in structures.Providers:
                 if i.name.lower() in data["extractor"]:
                     provider = i
                     break
-            if provider is None:
-                return cls._from_custom(data)
 
-            if "entries" in data:
-                tracks = data["entries"]
+            if provider is None:
+                songs = cls._from_custom(data)
             else:
-                tracks = [data]
-            return [
-                models.Song(
-                    url=i["webpage_url"],
-                    title=i.get("track", i["title"]),
-                    author=i.get("artist", i["uploader"]),
-                    description=i.get("description", ""),
-                    provided_from=provider,
-                    tags=set(i.get("tags", tuple())),
-                    import_date=datetime.now()
-                )
-                for i in tracks
-            ]
+                if "entries" in data:
+                    tracks = data["entries"]
+                else:
+                    tracks = [data]
+                songs = [
+                    models.Song(
+                        url=i["webpage_url"],
+                        title=i.get("track", i["title"]),
+                        author=i.get("artist", i["uploader"]),
+                        description=i.get("description", ""),
+                        provided_from=provider,
+                        tags=set(i.get("tags", tuple())),
+                        import_date=datetime.now()
+                    )
+                    for i in tracks
+                ]
+        models.session.add_all(songs)
+        models.session.commit()
+        return songs
 
     @classmethod
     def _from_vk(cls, url: str) -> List[models.Song]:

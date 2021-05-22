@@ -1,6 +1,16 @@
-from typing import Tuple
+from typing import Set
 from dataclasses import dataclass
 from enum import IntEnum
+
+
+YDL_PARAMS: dict = {
+    "format": "bestaudio/best"
+}
+NONEXPORTED_PARAMS: Set[str] = {
+    "id",
+    "import_date",
+    "_sa_instance_state"
+}
 
 
 @dataclass
@@ -22,8 +32,3 @@ class Platform(IntEnum):
     WINDOWS = 0
     LINUX = 1
     TERMUX = 2
-
-
-YDL_PARAMS = {
-    "format": "bestaudio/best"
-}
