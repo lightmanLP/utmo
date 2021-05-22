@@ -122,3 +122,6 @@ poetry.lock
 # Custom
 test.py
 vk_config.v2.json
+
+# Dev build
+setup.py

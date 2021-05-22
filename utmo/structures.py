@@ -33,3 +33,8 @@ class Platform(IntEnum):
     WINDOWS = 0
     LINUX = 1
     TERMUX = 2
+
+
+class ControlMode(IntEnum):
+    CLI = 0
+    INTERACTIVE_TERM = 1

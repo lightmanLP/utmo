@@ -4,11 +4,15 @@ from datetime import datetime
 import sqlalchemy as sqla
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from alembic import command, config
 
 from . import adapters, structures
 
 
 Base = declarative_base()
+engine: "sqla.engine.Engine"
+Session: "sessionmaker"
+session: "Session"
 
 
 class Song(Base):
@@ -62,7 +66,16 @@ class Song(Base):
         session.commit()
 
 
-engine = sqla.create_engine(adapters.system.db_uri, echo=False)
-Base.metadata.create_all(bind=engine)
-Session: sessionmaker = sessionmaker(bind=engine)
-session: Session = Session()
+def init():
+    global engine, Session, session
+
+    engine = sqla.create_engine(adapters.system.db_uri, echo=False)
+
+    al_cfg = config.Config()
+    al_cfg.set_main_option("script_location", "utmo:alembic")
+    al_cfg.set_main_option("sqlalchemy.url", adapters.system.db_uri)
+    command.upgrade(al_cfg, "head")
+
+    Base.metadata.create_all(bind=engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()

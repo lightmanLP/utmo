@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 from abc import ABC, abstractmethod
 from pathlib import Path
 import webbrowser
@@ -31,7 +31,7 @@ class AbstractSystemAdapter(ABC):
 class AbstractControlAdapter(ABC):
     """  """
 
-    cli: bool = False
+    mode: Optional[structures.ControlMode] = None
 
     @abstractmethod
     def get_input(

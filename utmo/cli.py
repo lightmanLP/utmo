@@ -3,7 +3,9 @@ import click
 from . import models, structures, adapters
 from .tools import Scrapper, Extractor
 
-adapters.control.cli = True
+
+adapters.control.mode = structures.ControlMode.CLI
+models.init()
 
 
 # core group
@@ -16,7 +18,7 @@ def cli():
 def list_songs():
     songs = models.session.query(models.Song).all()
     for song in songs:
-        print(f"{song.id: >8}: {song}")
+        print(f"{song.id: >4}: {song}")
 
 
 @click.command("add", help="add song from url to db")
@@ -25,7 +27,7 @@ def list_songs():
 def add_song(url: str):
     for song in Scrapper.scrap(url):
         print(
-            f"> {song.id: >8}. {song}",
+            f"> {song.id: >4}. {song}",
             f"{chr(171)}{song.description}{chr(187)}",
             f"provided from {structures.Providers(song.provider).name.lower()}",
             f"tags: {', '.join(song.tags) if song.tags else '(None)'}",
@@ -45,6 +47,16 @@ def play_song(song_id: int):
 
 @click.command("stats", help="view organizer stats")
 def organizer_stats():
+    ...  # TODO
+
+
+@click.command("export", help="export songs")
+def export_songs():
+    ...  # TODO
+
+
+@click.command("import", help="import songs")
+def import_songs():
     ...  # TODO
 
 
