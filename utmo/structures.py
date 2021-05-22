@@ -4,7 +4,8 @@ from enum import IntEnum
 
 
 YDL_PARAMS: dict = {
-    "format": "bestaudio/best"
+    "format": "bestaudio/best",
+    "quiet": True
 }
 NONEXPORTED_PARAMS: Set[str] = {
     "id",

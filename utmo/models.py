@@ -19,11 +19,14 @@ class Song(Base):
     title = sqla.Column(sqla.UnicodeText)
     author = sqla.Column(sqla.UnicodeText)
     description = sqla.Column(sqla.UnicodeText, default="")
-    provided_from = sqla.Column(sqla.Integer)
+    provider = sqla.Column(sqla.Integer)
     tags = sqla.Column(sqla.PickleType, default=set)
     plays_count = sqla.Column(sqla.Integer, default=0)
     import_date = sqla.Column(sqla.DateTime, default=datetime.now)
     extra_location_data = sqla.Column(sqla.PickleType, default=None)
+
+    def __repr__(self) -> str:
+        return f"{self.title} {chr(8212)} {self.author}"
 
     @classmethod
     def export_songs(
@@ -33,7 +36,7 @@ class Song(Base):
     ) -> List[dict]:
         query = session.query(cls)
         if not with_locals:
-            query.filter(cls.provided_from != structures.Providers.LOCAL)
+            query.filter(cls.provider != structures.Providers.LOCAL)
         songs = query.all()
         if not songs:
             return list()
@@ -59,7 +62,7 @@ class Song(Base):
         session.commit()
 
 
-engine = sqla.create_engine(adapters.system.db_uri, echo=True)
+engine = sqla.create_engine(adapters.system.db_uri, echo=False)
 Base.metadata.create_all(bind=engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+Session: sessionmaker = sessionmaker(bind=engine)
+session: Session = Session()

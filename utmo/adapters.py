@@ -23,9 +23,15 @@ class AbstractSystemAdapter(ABC):
     def open_url(self, url: str):
         ...
 
+    @abstractmethod
+    def play(self, url: str):
+        ...
+
 
 class AbstractControlAdapter(ABC):
     """  """
+
+    cli: bool = False
 
     @abstractmethod
     def get_input(
@@ -64,6 +70,9 @@ class SystemAdapter(AbstractSystemAdapter):
             os.system(f"termux-open-url {url}")
         else:
             webbrowser.open(url)
+
+    def play(self, url: str):
+        self.open_url(url)  # FIXME
 
 
 class ControlAdapter(AbstractControlAdapter):

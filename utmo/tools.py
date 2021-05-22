@@ -48,8 +48,9 @@ class Scrapper(AbstractScrapper):
         else:
             with youtube_dl.YoutubeDL(structures.YDL_PARAMS) as ydl:
                 data = ydl.extract_info(url, download=False)
+            provider = None
             for i in structures.Providers:
-                if i.name.lower() in data["extractor"]:
+                if i.name.lower() in data["extractor"].lower():
                     provider = i
                     break
 
@@ -66,7 +67,7 @@ class Scrapper(AbstractScrapper):
                         title=i.get("track", i["title"]),
                         author=i.get("artist", i["uploader"]),
                         description=i.get("description", ""),
-                        provided_from=provider,
+                        provider=provider,
                         tags=set(i.get("tags", tuple())),
                         import_date=datetime.now()
                     )
@@ -90,7 +91,7 @@ class Scrapper(AbstractScrapper):
                 title=i["title"],
                 author=i["artist"],
                 description=i.get("description", ""),
-                provided_from=structures.Providers.VK,
+                provider=structures.Providers.VK,
                 tags=set(),
                 import_date=datetime.now(),
                 extra_location_data=structures.VKSong(
@@ -110,9 +111,9 @@ class Extractor(AbstractExtractor):
 
     @classmethod
     def extract(cls, song: models.Song) -> Optional[str]:
-        if song.provided_from == structures.Providers.VK:
+        if song.provider == structures.Providers.VK:
             return cls._from_vk(song.extra_location_data)
-        elif song.provided_from == structures.Providers.CUSTOM:
+        elif song.provider == structures.Providers.CUSTOM:
             return cls._from_custom(song)  # FIXME
         else:
             return cls._from_yt(song.url)
