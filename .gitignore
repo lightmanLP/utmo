@@ -122,6 +122,7 @@ poetry.lock
 # Custom
 test.py
 vk_config.v2.json
+songs.pickle
 
 # Dev build
 setup.py
