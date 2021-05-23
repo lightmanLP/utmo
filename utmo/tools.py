@@ -77,8 +77,8 @@ class Scrapper(AbstractScrapper):  # FIXME
                             for i in set(i.get("tags", tuple()))
                         ]
                     )
-                    songs.append(song)
-                    models.session.merge(song)
+                    songs.append(models.session.merge(song))
+
         models.session.commit()
         return songs
 
