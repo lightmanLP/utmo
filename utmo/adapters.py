@@ -24,7 +24,7 @@ class AbstractSystemAdapter(ABC):
         ...
 
     @abstractmethod
-    def play(self, url: str):
+    def play_by_url(self, url: str, chooser: bool = False):
         ...
 
 
@@ -67,12 +67,17 @@ class SystemAdapter(AbstractSystemAdapter):
 
     def open_url(self, url: str):
         if self.platform == structures.Platform.TERMUX:
-            os.system(f"termux-open-url {url}")
+            os.system(f"termux-open-url '{url}'")
         else:
             webbrowser.open(url)
 
-    def play(self, url: str):
-        self.open_url(url)  # FIXME
+    def play_by_url(self, url: str, chooser: bool = False):
+        if self.platform == structures.Platform.TERMUX:
+            os.system(
+                f"termux-open {'--chooser' if chooser else ''} --content-type 'audio/mpeg' '{url}'"
+            )
+        else:
+            self.open_url(url)  # FIXME: запуск через плеер, проверка на локал
 
 
 class ControlAdapter(AbstractControlAdapter):

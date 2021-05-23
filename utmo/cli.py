@@ -42,7 +42,7 @@ def add_song(url: str):
 def play_song(song_id: int):
     song = models.session.query(models.Song).get(song_id)
     url = Extractor.extract(song)
-    adapters.system.play(url)
+    adapters.system.play_by_url(url)
 
 
 @click.command("stats", help="view organizer stats")
