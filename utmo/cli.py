@@ -30,11 +30,12 @@ def list_songs():
 @click.argument("url", type=str)
 def add_song(url: str):
     for song in Scrapper.scrap(url):
+        print(song.id)
         print(
             f"> {song.id: >4}. {song}",
             f"{chr(171)}{song.description}{chr(187)}",
             f"provided from {structures.Providers(song.provider).name.lower()}",
-            f"tags: {', '.join(song.tags) if song.tags else '(None)'}",
+            f"tags: {', '.join(map(str, song.tags)) if song.tags else '(None)'}",
             "",
             sep="\n"
         )

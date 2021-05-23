@@ -2,7 +2,7 @@ from typing import List
 from datetime import datetime
 
 import sqlalchemy as sqla
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from alembic import command, config
 
@@ -15,6 +15,14 @@ Session: "sessionmaker"
 session: "Session"
 
 
+association = sqla.Table(
+    "association",
+    Base.metadata,
+    sqla.Column("song_id", sqla.Integer, sqla.ForeignKey("songs.id"), primary_key=True),
+    sqla.Column("tag", sqla.Integer, sqla.ForeignKey("tags.tag"), primary_key=True)
+)
+
+
 class Song(Base):
     __tablename__ = "songs"
 
@@ -24,10 +32,11 @@ class Song(Base):
     author = sqla.Column(sqla.UnicodeText)
     description = sqla.Column(sqla.UnicodeText, default="")
     provider = sqla.Column(sqla.Integer)
-    tags = sqla.Column(sqla.PickleType, default=set)
     plays_count = sqla.Column(sqla.Integer, default=0)
     import_date = sqla.Column(sqla.DateTime, default=datetime.now)
     extra_location_data = sqla.Column(sqla.PickleType, default=None)
+
+    tags = relationship("Tag", secondary=association, back_populates="songs")
 
     def __repr__(self) -> str:
         return f"{self.title} {chr(8212)} {self.author}"
@@ -64,6 +73,17 @@ class Song(Base):
         ]
         session.add_all(songs)
         session.commit()
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    tag = sqla.Column(sqla.UnicodeText, primary_key=True)
+
+    songs = relationship("Song", secondary=association, back_populates="tags")
+
+    def __repr__(self) -> str:
+        return self.tag
 
 
 def init():

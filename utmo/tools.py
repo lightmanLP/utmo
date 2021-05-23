@@ -34,7 +34,7 @@ class AbstractExtractor(ABC):
         ...
 
 
-class Scrapper(AbstractScrapper):
+class Scrapper(AbstractScrapper):  # FIXME
     """ Scrap track data """
 
     vk_pattern = re.compile(r"https://(?:www.)?vk.com/")
@@ -61,19 +61,24 @@ class Scrapper(AbstractScrapper):
                     tracks = data["entries"]
                 else:
                     tracks = [data]
-                songs = [
-                    models.Song(
+                songs = list()
+                for i in tracks:
+                    song = models.Song(
                         url=i["webpage_url"],
                         title=i.get("track", i["title"]),
                         author=i.get("artist", i["uploader"]),
                         description=i.get("description", ""),
                         provider=provider,
-                        tags=set(i.get("tags", tuple())),
                         import_date=datetime.now()
                     )
-                    for i in tracks
-                ]
-        models.session.add_all(songs)
+                    song.tags.extend(
+                        [
+                            models.Tag(tag=i.lower())
+                            for i in set(i.get("tags", tuple()))
+                        ]
+                    )
+                    songs.append(song)
+                    models.session.merge(song)
         models.session.commit()
         return songs
 
@@ -85,14 +90,13 @@ class Scrapper(AbstractScrapper):
         else:
             peers = cls.vk_playlist_pattern.search(url)
             data = vk_manager.vk.get(*peers.groups())
-        return [
+        songs = [
             models.Song(
                 url="",
                 title=i["title"],
                 author=i["artist"],
                 description=i.get("description", ""),
                 provider=structures.Providers.VK,
-                tags=set(),
                 import_date=datetime.now(),
                 extra_location_data=structures.VKSong(
                     i["id"],
@@ -101,6 +105,8 @@ class Scrapper(AbstractScrapper):
             )
             for i in data
         ]
+        models.session.add_all(songs)
+        return songs
 
     def _from_custom(ydl_data: dict) -> List[models.Song]:
         ...  # TODO
