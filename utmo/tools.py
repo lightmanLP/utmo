@@ -34,6 +34,14 @@ class AbstractExtractor(ABC):
         ...
 
 
+class AbstractSearch(ABC):
+    """ Fuzzy search for songs """
+
+    @abstractmethod
+    def search():
+        ...
+
+
 class Scrapper(AbstractScrapper):  # FIXME
     """ Scrap track data """
 
@@ -138,3 +146,7 @@ class Extractor(AbstractExtractor):
 
     def _from_custom(song: models.Song) -> Optional[str]:
         ...  # TODO
+
+
+class Search(AbstractSearch):
+    ...  # TODO
