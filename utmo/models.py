@@ -34,12 +34,20 @@ class Song(Base):
     provider = sqla.Column(sqla.Integer)
     plays_count = sqla.Column(sqla.Integer, default=0)
     import_date = sqla.Column(sqla.DateTime, default=datetime.now)
-    extra_location_data = sqla.Column(sqla.PickleType, default=None)
+    extra_location_data = sqla.Column(sqla.PickleType, nullable=True, default=None)
 
     tags = relationship("Tag", secondary=association, back_populates="songs")
 
     def __repr__(self) -> str:
         return f"{self.title} {chr(8212)} {self.author}"
+
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, Song):
+            return self.id == o.id
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.id)
 
     @classmethod
     def export_songs(
@@ -49,7 +57,7 @@ class Song(Base):
     ) -> List[dict]:
         query = session.query(cls)
         if not with_locals:
-            query.filter(cls.provider != structures.Providers.LOCAL)
+            query.filter(cls.provider != structures.Provider.LOCAL)
         songs = query.all()
         if not songs:
             return list()

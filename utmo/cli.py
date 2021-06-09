@@ -26,7 +26,7 @@ def list_songs():
 
 
 @cli.command("add", help="add song from url to db")
-# @click.option("--provider", default=None, type=structures.Providers)
+# @click.option("--provider", default=None, type=structures.Provider)
 @click.argument("url", type=str)
 def add_song(url: str):
     for song in Scrapper.scrap(url):
@@ -34,7 +34,7 @@ def add_song(url: str):
         print(
             f"> {song.id: >4}. {song}",
             f"{chr(171)}{song.description}{chr(187)}",
-            f"provided from {structures.Providers(song.provider).name.lower()}",
+            f"provided from {structures.Provider(song.provider).name.lower()}",
             f"tags: {', '.join(map(str, song.tags)) if song.tags else '(None)'}",
             "",
             sep="\n"

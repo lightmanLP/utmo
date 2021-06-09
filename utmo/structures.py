@@ -20,7 +20,7 @@ class VKSong:
     owner_id: int
 
 
-class Providers(IntEnum):
+class Provider(IntEnum):
     LOCAL = 0
     YOUTUBE = 1
     BANDCAMP = 2

@@ -57,7 +57,7 @@ class Scrapper(AbstractScrapper):  # FIXME
             with youtube_dl.YoutubeDL(structures.YDL_PARAMS) as ydl:
                 data = ydl.extract_info(url, download=False)
             provider = None
-            for i in structures.Providers:
+            for i in structures.Provider:
                 if i.name.lower() in data["extractor"].lower():
                     provider = i
                     break
@@ -104,7 +104,7 @@ class Scrapper(AbstractScrapper):  # FIXME
                 title=i["title"],
                 author=i["artist"],
                 description=i.get("description", ""),
-                provider=structures.Providers.VK,
+                provider=structures.Provider.VK,
                 import_date=datetime.now(),
                 extra_location_data=structures.VKSong(
                     i["id"],
@@ -125,9 +125,9 @@ class Extractor(AbstractExtractor):
 
     @classmethod
     def extract(cls, song: models.Song) -> Optional[str]:
-        if song.provider == structures.Providers.VK:
+        if song.provider == structures.Provider.VK:
             return cls._from_vk(song.extra_location_data)
-        elif song.provider == structures.Providers.CUSTOM:
+        elif song.provider == structures.Provider.CUSTOM:
             return cls._from_custom(song)  # FIXME
         else:
             return cls._from_yt(song.url)

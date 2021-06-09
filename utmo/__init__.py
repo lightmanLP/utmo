@@ -4,4 +4,4 @@ from .adapters import (
     control as control_adapter,
     system as system_adapter
 )
-from .structures import Providers, Platform
+from .structures import Provider, Platform
