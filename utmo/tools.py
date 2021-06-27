@@ -1,4 +1,4 @@
-from typing import Optional, Iterator
+from typing import List, Optional, Iterator
 from abc import ABC, abstractmethod
 from datetime import datetime
 import re
@@ -18,7 +18,7 @@ class AbstractScrapper(ABC):
 
     @classmethod
     @abstractmethod
-    def scrap(cls, url: str) -> Iterator[models.Song]:
+    def scrap(cls, url: str) -> List[models.Song]:
         """  """
         ...
 
@@ -49,7 +49,7 @@ class Scrapper(AbstractScrapper):  # FIXME: wha?
     vk_playlist_pattern = re.compile(r"(?:audio_playlist|playlist/)(\d+)_(\d+)(?:/(\w+))?")
 
     @classmethod
-    def scrap(cls, url: str) -> Iterator[models.Song]:
+    def scrap(cls, url: str) -> List[models.Song]:
         if cls.vk_pattern.search(url) is not None:
             songs = cls._from_vk(url)
         else:
@@ -64,17 +64,17 @@ class Scrapper(AbstractScrapper):  # FIXME: wha?
             if provider is None:
                 songs = cls._from_custom(data)
             else:
-                songs = cls._from_yt(data)
+                songs = cls._from_yt(data, provider)
 
+        result = list()
         for song in songs:
-            yield models.session.merge(song)
+            song.tags.append(models.Tag(tag=song.author))
+            result.append(models.session.merge(song))
         models.session.commit()
+        return result
 
     def _from_yt(ydl_data: dict, provider: structures.Provider) -> Iterator[models.Song]:
-        if "entries" in ydl_data:
-            tracks = ydl_data["entries"]
-        else:
-            tracks = [ydl_data]
+        tracks = ydl_data.get("entries", [ydl_data])
         for i in tracks:
             song = models.Song(
                 url=i["webpage_url"],
@@ -88,7 +88,6 @@ class Scrapper(AbstractScrapper):  # FIXME: wha?
                 models.Tag(tag=i.lower())
                 for i in set(i.get("tags", tuple()))
             )
-            song.tags.append(song.author)
             yield song
 
     @classmethod
@@ -113,7 +112,6 @@ class Scrapper(AbstractScrapper):  # FIXME: wha?
                     i["owner_id"]
                 )
             )
-            song.tags.append(song.author)
             yield song
 
     def _from_custom(ydl_data: dict) -> Iterator[models.Song]:
