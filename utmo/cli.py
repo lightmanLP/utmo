@@ -35,7 +35,7 @@ def add_song(url: str):
             f"> {song.id: >4}. {song}",
             f"{chr(171)}{song.description}{chr(187)}",
             f"provided from {structures.Provider(song.provider).name.lower()}",
-            f"tags: {', '.join(map(str, song.tags)) if song.tags else '(None)'}",
+            f"tags: {', '.join(map(str, song.tags)) or '(None)'}",
             "",
             sep="\n"
         )

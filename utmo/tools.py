@@ -1,9 +1,8 @@
-from typing import List, Optional
+from typing import Optional, Iterator
 from abc import ABC, abstractmethod
 from datetime import datetime
 import re
 
-from urllib3.util import parse_url
 import youtube_dl
 
 from . import models, structures
@@ -19,7 +18,7 @@ class AbstractScrapper(ABC):
 
     @classmethod
     @abstractmethod
-    def scrap(cls, url: str) -> List[models.Song]:
+    def scrap(cls, url: str) -> Iterator[models.Song]:
         """  """
         ...
 
@@ -42,7 +41,7 @@ class AbstractSearch(ABC):
         ...
 
 
-class Scrapper(AbstractScrapper):  # FIXME
+class Scrapper(AbstractScrapper):  # FIXME: wha?
     """ Scrap track data """
 
     vk_pattern = re.compile(r"https://(?:www.)?vk.com/")
@@ -50,7 +49,7 @@ class Scrapper(AbstractScrapper):  # FIXME
     vk_playlist_pattern = re.compile(r"(?:audio_playlist|playlist/)(\d+)_(\d+)(?:/(\w+))?")
 
     @classmethod
-    def scrap(cls, url: str) -> List[models.Song]:
+    def scrap(cls, url: str) -> Iterator[models.Song]:
         if cls.vk_pattern.search(url) is not None:
             songs = cls._from_vk(url)
         else:
@@ -65,41 +64,44 @@ class Scrapper(AbstractScrapper):  # FIXME
             if provider is None:
                 songs = cls._from_custom(data)
             else:
-                if "entries" in data:
-                    tracks = data["entries"]
-                else:
-                    tracks = [data]
-                songs = list()
-                for i in tracks:
-                    song = models.Song(
-                        url=i["webpage_url"],
-                        title=i.get("track", i["title"]),
-                        author=i.get("artist", i["uploader"]),
-                        description=i.get("description", ""),
-                        provider=provider,
-                        import_date=datetime.now()
-                    )
-                    song.tags.extend(
-                        [
-                            models.Tag(tag=i.lower())
-                            for i in set(i.get("tags", tuple()))
-                        ]
-                    )
-                    songs.append(models.session.merge(song))
+                songs = cls._from_yt(data)
 
+        for song in songs:
+            yield models.session.merge(song)
         models.session.commit()
-        return songs
+
+    def _from_yt(ydl_data: dict, provider: structures.Provider) -> Iterator[models.Song]:
+        if "entries" in ydl_data:
+            tracks = ydl_data["entries"]
+        else:
+            tracks = [ydl_data]
+        for i in tracks:
+            song = models.Song(
+                url=i["webpage_url"],
+                title=i.get("track", i["title"]),
+                author=i.get("artist", i["uploader"]),
+                description=i.get("description", ""),
+                provider=provider,
+                import_date=datetime.now()
+            )
+            song.tags.extend(
+                models.Tag(tag=i.lower())
+                for i in set(i.get("tags", tuple()))
+            )
+            song.tags.append(song.author)
+            yield song
 
     @classmethod
-    def _from_vk(cls, url: str) -> List[models.Song]:
+    def _from_vk(cls, url: str) -> Iterator[models.Song]:
         peers = cls.vk_audio_pattern.search(url)
         if peers:
             data = [vk_manager.vk.get_audio_by_id(*peers.groups())]
         else:
             peers = cls.vk_playlist_pattern.search(url)
             data = vk_manager.vk.get(*peers.groups())
-        songs = [
-            models.Song(
+
+        for i in data:
+            song = models.Song(
                 url="",
                 title=i["title"],
                 author=i["artist"],
@@ -111,12 +113,10 @@ class Scrapper(AbstractScrapper):  # FIXME
                     i["owner_id"]
                 )
             )
-            for i in data
-        ]
-        models.session.add_all(songs)
-        return songs
+            song.tags.append(song.author)
+            yield song
 
-    def _from_custom(ydl_data: dict) -> List[models.Song]:
+    def _from_custom(ydl_data: dict) -> Iterator[models.Song]:
         ...  # TODO
 
 
@@ -149,4 +149,5 @@ class Extractor(AbstractExtractor):
 
 
 class Search(AbstractSearch):
-    ...  # TODO
+    def search():  # TODO
+        ...

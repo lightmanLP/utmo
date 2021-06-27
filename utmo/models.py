@@ -29,13 +29,14 @@ class Song(Base):
     id = sqla.Column(sqla.Integer, primary_key=True, autoincrement=True)
     url = sqla.Column(sqla.Text, default="")
     title = sqla.Column(sqla.UnicodeText)
-    author = sqla.Column(sqla.UnicodeText)
+    author = sqla.Column(sqla.UnicodeText, sqla.ForeignKey("tags.tag"))
     description = sqla.Column(sqla.UnicodeText, default="")
     provider = sqla.Column(sqla.Integer)
     plays_count = sqla.Column(sqla.Integer, default=0)
     import_date = sqla.Column(sqla.DateTime, default=datetime.now)
     extra_location_data = sqla.Column(sqla.PickleType, nullable=True, default=None)
 
+    author_tag = relationship("Tag")
     tags = relationship("Tag", secondary=association, back_populates="songs")
 
     def __repr__(self) -> str:
