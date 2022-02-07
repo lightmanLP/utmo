@@ -1,9 +1,10 @@
-from typing import Set
+from typing import Dict, Any, Set
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum, IntEnum
+from pathlib import Path
 
 
-YDL_PARAMS: dict = {
+YDL_PARAMS: Dict[str, Any] = {
     "format": "bestaudio/best",
     "quiet": True
 }
@@ -12,6 +13,7 @@ NONEXPORTED_PARAMS: Set[str] = {
     "import_date",
     "_sa_instance_state"
 }
+SQLITE_EXTENSIONS_PATH: Path = Path(__package__) / "sqlite_ext"
 
 
 @dataclass
@@ -33,8 +35,15 @@ class Platform(IntEnum):
     WINDOWS = 0
     LINUX = 1
     TERMUX = 2
+    MACOS = 3
 
 
 class ControlMode(IntEnum):
     CLI = 0
     INTERACTIVE_TERM = 1
+    TUI = 2
+
+
+class Dialect(Enum):
+    SQLITE = "sqlite"
+    PG = "postgresql"

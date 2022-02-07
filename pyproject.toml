@@ -8,6 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/lightmanLP/utmo"
 repository = "https://github.com/lightmanLP/utmo"
 keywords = ["music", "song", "audio", "manager", "organizer"]
+build = "build.py"
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -19,9 +20,11 @@ click-shell = "^2.0"
 keyring = "^23.0.1"
 SQLAlchemy = "^1.4.15"
 alembic = "^1.6.3"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
+typing-extensions = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
