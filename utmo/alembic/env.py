@@ -4,13 +4,13 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from utmo import models, adapters
+from utmo import models, config as app_config
 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", adapters.system.db_uri)
+config.set_main_option("sqlalchemy.url", app_config.db_uri)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

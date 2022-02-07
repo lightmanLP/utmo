@@ -4,17 +4,31 @@ from pathlib import Path
 import yaml
 
 
-from . import adapters
+from . import adapters, structures
 from .exceptions import ConfigParseError
 
 
 class Config:
     db_uri: str
+    use_builtin_sqlite: bool
 
-    def __init__(self, db_uri: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        db_uri: Optional[str] = None,
+        use_builtin_sqlite: Optional[bool] = None
+    ) -> None:
         if db_uri is None:
             db_uri = adapters.system.default_db_uri
-        self.db_uri = db_uri
+        if use_builtin_sqlite is None:
+            use_builtin_sqlite = adapters.system.default_builtin_sqlite
+        loc = locals().copy()
+        del loc["self"]
+        self.__dict__.update(loc)
+        self.validate()
+
+    def validate(self):
+        if self.use_builtin_sqlite:
+            assert adapters.system.platform == structures.Platform.WINDOWS
 
     @classmethod
     def from_path(cls, path: Path) -> "Config":
@@ -24,3 +38,6 @@ class Config:
         if not isinstance(data, dict):
             raise ConfigParseError()
         return cls(**data)
+
+
+config = Config.from_path(adapters.system.config_path)

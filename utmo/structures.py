@@ -1,7 +1,13 @@
-from typing import Dict, Any, Set
+from __future__ import annotations
+from typing import TYPE_CHECKING, Dict, Any, Set
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 from pathlib import Path
+
+import sqlalchemy as sqla
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 YDL_PARAMS: Dict[str, Any] = {
@@ -13,7 +19,7 @@ NONEXPORTED_PARAMS: Set[str] = {
     "import_date",
     "_sa_instance_state"
 }
-SQLITE_EXTENSIONS_PATH: Path = Path(__package__) / "sqlite_ext"
+LIBS_PATH: Path = Path(__package__) / "libs"
 
 
 @dataclass
@@ -47,3 +53,7 @@ class ControlMode(IntEnum):
 class Dialect(Enum):
     SQLITE = "sqlite"
     PG = "postgresql"
+
+    @classmethod
+    def from_engine(cls, engine: sqla.engine.Engine) -> Self:
+        return cls(engine.dialect.name)

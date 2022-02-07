@@ -5,3 +5,4 @@ from .adapters import (
     system as system_adapter
 )
 from .structures import Provider, Platform
+from. config import config

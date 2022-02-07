@@ -21,6 +21,11 @@ class AbstractSystemAdapter(ABC):
     def default_db_uri(self) -> str:
         ...
 
+    @property
+    @abstractmethod
+    def default_builtin_sqlite(self) -> bool:
+        ...
+
     @abstractmethod
     def open_url(self, url: str):
         ...
@@ -67,6 +72,10 @@ class SystemAdapter(AbstractSystemAdapter):
         self.vars_path.mkdir(parents=True, exist_ok=True)
         self.config_path = self.vars_path / "config.yml"
         self.config_path.touch(exist_ok=True)
+
+    @property
+    def default_builtin_sqlite(self) -> bool:
+        return self.platform == structures.Platform.WINDOWS
 
     @property
     def default_db_uri(self) -> str:

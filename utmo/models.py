@@ -10,15 +10,25 @@ from sqlalchemy import event
 from sqlalchemy.sql import functions
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from alembic import command, config
+from alembic import command as alembic_cmd
+from alembic.config import Config as AlConfig
 
-from . import adapters, structures
+from . import structures
+from .config import config
 from .exceptions import UnsupportedDBDialectError
 
 if TYPE_CHECKING:
     import sqlite3
 
 T = TypeVar("T", bound=IntEnum)
+SQLITE_EXTS_PATH = structures.LIBS_PATH / "sqlite_exts"
+
+
+if config.use_builtin_sqlite:
+    SQLITE_PATH = (structures.LIBS_PATH / "sqlite3.dll").resolve()
+    assert SQLITE_PATH.exists() and SQLITE_PATH.is_file()
+    from ctypes import cdll
+    cdll.LoadLibrary(str(SQLITE_PATH))
 
 Base = declarative_base()
 Column = functools.partial(sqla.Column, nullable=False)  # type: sqla.Column
@@ -180,23 +190,27 @@ class Tag(Base):
 
 def load_extensions(dbapi_connection: sqlite3.Connection, connection_record):
     dbapi_connection.enable_load_extension(True)
-    for i in structures.SQLITE_EXTENSIONS_PATH.iterdir():
-        dbapi_connection.load_extension(str(i))
+    for i in SQLITE_EXTS_PATH.iterdir():
+        if i.is_file():
+            dbapi_connection.load_extension(str(i.resolve()))
     dbapi_connection.enable_load_extension(False)
 
 
 def init():
     global engine, Session, session
 
-    engine = sqla.create_engine(adapters.system.db_uri, echo=False)
-    if engine.dialect.name not in structures.Dialect:
+    engine = sqla.create_engine(config.db_uri, echo=False)
+    try:
+        dialect = structures.Dialect.from_engine(engine)
+    except ValueError:
         raise UnsupportedDBDialectError(engine.dialect.name)
-    elif engine.dialect.name == structures.Dialect.SQLITE:
+    if dialect == structures.Dialect.SQLITE:
         event.listen(engine, "connect", load_extensions)
-    al_cfg = config.Config()
+
+    al_cfg = AlConfig()
     al_cfg.set_main_option("script_location", "utmo:alembic")
-    al_cfg.set_main_option("sqlalchemy.url", adapters.system.db_uri)
-    command.upgrade(al_cfg, "head")
+    al_cfg.set_main_option("sqlalchemy.url", config.db_uri)
+    alembic_cmd.upgrade(al_cfg, "head")
 
     Base.metadata.create_all(bind=engine)
     Session = sessionmaker(bind=engine)

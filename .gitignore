@@ -126,7 +126,9 @@ songs.pickle
 
 # Dev build
 setup.py
-sqlite_ext
+sqlite_exts
+sqlite3.dll
+sqlite3.def
 
 # Stubs
 stubs
