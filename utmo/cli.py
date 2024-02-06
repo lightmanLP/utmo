@@ -4,10 +4,15 @@ import pickle
 
 import click
 
-# FIXME: incapsulate
-from .core import structures, adapters
-from .core.db import models
-from .core.tools import Scrapper, Extractor, event_mngr
+# FIXME: encapsulate
+from .core import (
+    structures,
+    adapters,
+    models,
+    Scrapper,
+    Extractor,
+    event_mngr,
+)
 
 adapters.control.mode = structures.ControlMode.CLI
 event_mngr.emit("core.init")

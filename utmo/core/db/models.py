@@ -55,6 +55,24 @@ class Song(Base):
         back_populates="songs"
     )
 
+    def __str__(self) -> str:
+        return f"{self.title} {chr(8212)} {self.author}"
+
+    def __format__(self, format_spec: str) -> str:
+        return str(self).__format__(format_spec)
+
+    def __eq__(self, obj: object) -> bool:
+        match obj:
+            case Song():
+                return self.id == obj.id
+            case int():
+                return self.id == obj
+            case _:
+                return False
+
+    def __hash__(self) -> int:
+        return self.id
+
 
 class Tag(Base):
     __tablename__ = "tags"
@@ -67,6 +85,12 @@ class Tag(Base):
         secondary=songs_to_tags,
         back_populates="tags"
     )
+
+    def __str__(self) -> str:
+        return self.tag
+
+    def __format__(self, format_spec: str) -> str:
+        return str(self).__format__(format_spec)
 
 
 @event_mngr.on("core.init")
