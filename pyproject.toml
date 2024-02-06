@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "utmo"
+version = "0.0.1"
+description = ""
+authors = ["lightmanLP <liteman1000@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/lightmanLP/utmo"
+repository = "https://github.com/lightmanLP/utmo"
+keywords = ["music", "song", "audio", "manager", "organizer"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+yt-dlp = "^2023.12.30"
+oyaml = "^1.0"
+alembic = "^1.13.1"
+SQLAlchemy = "^2.0.25"
+pydantic = "^2.6.1"
+sortedcontainers = "^2.4.0"
+
+
+[tool.poetry.group.cli.dependencies]
+click = "^8.1.7"
+
+
+[tool.poetry.group.dev.dependencies]
+typing-extensions = "^4.9.0"
+flake8 = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

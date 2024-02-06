@@ -114,15 +114,15 @@ dmypy.json
 .pyre/
 
 # Code
-.vscode
+/.vscode
 
 # Poetry
-poetry.lock
+/poetry.lock
 
 # Custom
-test.py
-vk_config.v2.json
-songs.pickle
+/test.py
+/vk_config.v2.json
+/songs.pickle
 
 # Dev build
 setup.py
@@ -131,4 +131,4 @@ sqlite3.dll
 sqlite3.def
 
 # Stubs
-stubs
+/stubs
